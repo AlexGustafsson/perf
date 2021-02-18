@@ -18,6 +18,7 @@ int perf_is_supported();
 
 // Reads the currently configured event paranoia.
 // Returns -1 if an error occured, a PERF_EVENT_PARANOIA_ value otherwise.
+// Note: does not return the actually configured paranoia value.
 int perf_get_event_paranoia();
 // Checks whether the current user has sufficient privilege for using the
 // perf API. Returns 1 if there user has sufficient privileges, 0 if not and
