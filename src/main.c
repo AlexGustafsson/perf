@@ -1,10 +1,11 @@
+#include <linux/perf_event.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+#include <stdint.h>
 
-#include <perf/perf.h>
 #include <perf/utilities.h>
 
 int main(int argc, char **argv) {
@@ -33,37 +34,46 @@ int main(int argc, char **argv) {
     exit(EXIT_FAILURE);
   }
   printf("Has sufficient privilege: %d\n", has_sufficient_privilege);
-  if (!has_sufficient_privilege)
+  if (!has_sufficient_privilege) {
+    printf("Unprivileged user\n");
     return EXIT_FAILURE;
+  }
 
-  pid_t pid = getpid();
-  struct perf_event_attr attr;
-  memset(&attr, 0, sizeof(attr));
-  attr.type = PERF_TYPE_HARDWARE;
-  attr.size = sizeof(attr);
-  attr.config = PERF_COUNT_HW_INSTRUCTIONS;
-  attr.disabled = 1;
-  attr.exclude_kernel = 1;
-  attr.exclude_hv = 1;
-
-  int fd = perf_event_open(&attr, pid, -1, -1, 0);
-  if (fd == -1) {
-    fprintf(stderr, "Error opening leader %llx\n", attr.config);
+  perf_measurement_t *measure_instruction_count = perf_create_measurement(PERF_TYPE_HARDWARE, PERF_COUNT_HW_INSTRUCTIONS);
+  if (measure_instruction_count == NULL) {
+    printf("Failed to create measurement\n");
     exit(EXIT_FAILURE);
   }
 
-  ioctl(fd, PERF_EVENT_IOC_RESET, 0);
-  ioctl(fd, PERF_EVENT_IOC_ENABLE, 0);
+  measure_instruction_count->attribute.exclude_hv = 1;
+  measure_instruction_count->attribute.exclude_kernel = 1;
+
+  if (perf_open_measurement(measure_instruction_count, getpid(), -1, -1, 0) == -1) {
+    printf("Failed to open measurement\n");
+    free((void*)measure_instruction_count);
+    exit(EXIT_FAILURE);
+  }
+
+  perf_start_measurement(measure_instruction_count);
 
   printf("Measuring instruction count for this printf\n");
 
-  ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
-  long long instructions_count = 0;
-  read(fd, &instructions_count, sizeof(instructions_count));
+  perf_stop_measurement(measure_instruction_count);
 
-  printf("Used %lld instructions\n", instructions_count);
+  uint64_t instruction_count = 0;
+  if (perf_read_measurement(measure_instruction_count, &instruction_count) == -1) {
+    printf("Failed to read measurement\n");
+    free((void*)measure_instruction_count);
+    exit(EXIT_FAILURE);
+  }
 
-  close(fd);
+  printf("Got %lu instructions\n", instruction_count);
+
+  free((void*)measure_instruction_count);
+
+  // TODO: Enable to validate instruction count. Previously the count was consistently 58 for a printf statement.
+  // If we add abstractions / further calls, perhaps it's useful to first measure the required cycles for doing nothing
+  // and then remove the count. That way we can remove the cost of the library itself?
 
   return EXIT_SUCCESS;
 }

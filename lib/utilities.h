@@ -1,6 +1,18 @@
 #ifndef PERF_UTILITIES_H
 #define PERF_UTILITIES_H
 
+#include <unistd.h>
+#include <stdint.h>
+
+#include "perf.h"
+
+typedef struct {
+  // The attribute for the measurement
+  perf_event_attr_t attribute;
+  // The file descriptor of the measurement
+  int file_descriptor;
+} perf_measurement_t;
+
 // Checks whether or not the perf API is supported.
 // Returns 1 if there is support and 0 otherwise.
 int perf_is_supported();
@@ -24,5 +36,16 @@ int perf_get_event_paranoia();
 // perf API. Returns 1 if there user has sufficient privileges, 0 if not and
 // -1 if there was an error.
 int perf_has_sufficient_privilege(int event_paranoia);
+
+// Create a measurement. Should be freed.
+perf_measurement_t *perf_create_measurement(int type, int config);
+// Open a measurement to prepare it for usage. Returns 0 for success, -1 otherwise.
+int perf_open_measurement(perf_measurement_t *measurement, pid_t pid, int cpu, int group, int flags);
+// Start a measurement. Resets the counter and starts it.
+#define perf_start_measurement(measurement) do { ioctl(measurement->file_descriptor, PERF_EVENT_IOC_RESET, 0); ioctl(measurement->file_descriptor, PERF_EVENT_IOC_ENABLE, 0); } while(0)
+// Stop a measurement.
+#define perf_stop_measurement(measurement) ioctl(measurement->file_descriptor, PERF_EVENT_IOC_DISABLE, 0)
+// Read a measured value.
+int perf_read_measurement(perf_measurement_t *measurement, uint64_t *value);
 
 #endif

@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <sys/capability.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 #include "perf.h"
 #include "utilities.h"
@@ -50,4 +53,32 @@ int perf_has_sufficient_privilege(int event_paranoia) {
 
   // Return whether or not the user has CAP_SYS_ADMIN
   return sys_admin_value == CAP_SET;
+}
+
+perf_measurement_t *perf_create_measurement(int type, int config) {
+  perf_measurement_t *measurement = (perf_measurement_t*)malloc(sizeof(perf_measurement_t));
+  if (measurement == NULL)
+    return NULL;
+
+  memset((void *)measurement, 0, sizeof(perf_measurement_t));
+
+  measurement->attribute.type = type;
+  measurement->attribute.config = config;
+  measurement->attribute.disabled = 1;
+
+  return measurement;
+}
+
+int perf_open_measurement(perf_measurement_t *measurement, pid_t pid, int cpu, int group, int flags) {
+  // TODO: Validate privilege
+  int file_descriptor = perf_event_open(&measurement->attribute, pid, cpu, group, flags);
+  if (file_descriptor == -1)
+    return -1;
+
+  measurement->file_descriptor = file_descriptor;
+  return 0;
+}
+
+int perf_read_measurement(perf_measurement_t *measurement, uint64_t *value) {
+  return read(measurement->file_descriptor, value, sizeof(uint64_t));
 }
