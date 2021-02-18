@@ -5,7 +5,7 @@
 // Returns 1 if there is support and 0 otherwise.
 int perf_is_supported();
 
-// -1 : Allow use of(almost)all events by all users Ignore mlock limit after
+// -1 : Allow use of (almost) all events by all users. Ignore mlock limit after
 // perf_event_mlock_kb without CAP_IPC_LOCK.
 #define PERF_EVENT_PARANOIA_ALLOW_ALL (1 << 0)
 // >=0 : Disallow ftrace function tracepoint by users without CAP_SYS_ADMIN.
@@ -23,6 +23,6 @@ int perf_get_event_paranoia();
 // Checks whether the current user has sufficient privilege for using the
 // perf API. Returns 1 if there user has sufficient privileges, 0 if not and
 // -1 if there was an error.
-int perf_has_sufficient_privilege();
+int perf_has_sufficient_privilege(int event_paranoia);
 
 #endif
