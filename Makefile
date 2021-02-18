@@ -3,7 +3,10 @@ MAKEFLAGS += --silent
 
 export CCFLAGS := $(CCFLAGS) -O3 -Wall -Wextra -pedantic -Wno-unused-parameter -fno-omit-frame-pointer -g
 
-.PHONY: build library clean
+source := $(shell find * -type f -name "*.c" -not -path "build/*")
+headers := $(shell find * -type f -name "*.h" -not -path "build/*")
+
+.PHONY: build library format clean
 
 build: build/main
 
@@ -31,6 +34,10 @@ build/main: library src/main.c
 compile_commands.json: Makefile
 	# compiledb is instqalled using: pip install compiledb
 	compiledb -n make
+
+# Format code according to .clang-format
+format: compile_commands.json
+	clang-format -style=file -i $(source) $(headers)
 
 clean:
 	rm -rf build &>/dev/null || true

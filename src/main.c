@@ -1,8 +1,8 @@
-#include <stdlib.h>
 #include <stdio.h>
-#include <unistd.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/ioctl.h>
+#include <unistd.h>
 
 #include <perf/perf.h>
 #include <perf/utilities.h>
@@ -18,10 +18,14 @@ int main(int argc, char **argv) {
     printf("error: unable to get event paranoia\n");
     exit(EXIT_FAILURE);
   }
-  if (event_paranoia & PERF_EVENT_PARANOIA_ALLOW_ALL) printf("Event paranoia: Allow All\n");
-  if (event_paranoia & PERF_EVENT_PARANOIA_DISALLOW_CPU) printf("Event paranoia: Disallow CPU\n");
-  if (event_paranoia & PERF_EVENT_PARANOIA_DISALLOW_FTRACE) printf("Event paranoia: Disallow ftrace\n");
-  if (event_paranoia & PERF_EVENT_PARANOIA_DISALLOW_KERNEL) printf("Event paranoia: Disallow kernel\n");
+  if (event_paranoia & PERF_EVENT_PARANOIA_ALLOW_ALL)
+    printf("Event paranoia: Allow All\n");
+  if (event_paranoia & PERF_EVENT_PARANOIA_DISALLOW_CPU)
+    printf("Event paranoia: Disallow CPU\n");
+  if (event_paranoia & PERF_EVENT_PARANOIA_DISALLOW_FTRACE)
+    printf("Event paranoia: Disallow ftrace\n");
+  if (event_paranoia & PERF_EVENT_PARANOIA_DISALLOW_KERNEL)
+    printf("Event paranoia: Disallow kernel\n");
 
   int has_sufficient_privilege = perf_has_sufficient_privilege(event_paranoia);
   if (has_sufficient_privilege == -1) {
