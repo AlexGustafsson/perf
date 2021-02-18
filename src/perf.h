@@ -1,6 +1,9 @@
 #ifndef LIB_H
 #define LIB_H
 
+#include <linux/perf_event.h> // "Convenience include"
+#include <unistd.h>
+
 // Checks whether or not the perf API is supported.
 // Returns 1 if there is support and 0 otherwise.
 int perf_is_supported();
@@ -24,5 +27,8 @@ int perf_get_event_paranoia();
 // perf API. Returns 1 if there user has sufficient privileges, 0 if not and
 // -1 if there was an error.
 int perf_has_sufficient_privilege(int event_paranoia);
+
+// Wrapper for perf_event_open(2). You likely want to use a utility method instead.
+int perf_event_open(struct perf_event_attr *attr, pid_t pid, int cpu, int group_fd, unsigned long flags);
 
 #endif
