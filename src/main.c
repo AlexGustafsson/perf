@@ -4,8 +4,8 @@
 #include <string.h>
 #include <sys/ioctl.h>
 
-#include "perf.h"
-#include "utilities.h"
+#include <perf/perf.h>
+#include <perf/utilities.h>
 
 int main(int argc, char **argv) {
   if (perf_is_supported() != 0) {
