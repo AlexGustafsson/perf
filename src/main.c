@@ -5,6 +5,7 @@
 #include <sys/ioctl.h>
 
 #include "perf.h"
+#include "utilities.h"
 
 int main(int argc, char **argv) {
   if (perf_is_supported() != 0) {
@@ -28,6 +29,8 @@ int main(int argc, char **argv) {
     exit(EXIT_FAILURE);
   }
   printf("Has sufficient privilege: %d\n", has_sufficient_privilege);
+  if (!has_sufficient_privilege)
+    return EXIT_FAILURE;
 
   pid_t pid = getpid();
   struct perf_event_attr attr;
