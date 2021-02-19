@@ -59,7 +59,7 @@ int main(int argc, char **argv) {
 
   if (perf_open_measurement(measure_instruction_count, -1, 0) < 0) {
     printf("Failed to open measurement\n");
-    free((void*)measure_instruction_count);
+    free((void *)measure_instruction_count);
     exit(EXIT_FAILURE);
   }
 
@@ -72,13 +72,13 @@ int main(int argc, char **argv) {
   uint64_t instruction_count = 0;
   if (perf_read_measurement(measure_instruction_count, &instruction_count) < 0) {
     printf("Failed to read measurement\n");
-    free((void*)measure_instruction_count);
+    free((void *)measure_instruction_count);
     exit(EXIT_FAILURE);
   }
 
   printf("Got %lu instructions\n", instruction_count);
 
-  free((void*)measure_instruction_count);
+  free((void *)measure_instruction_count);
 
   // TODO: Enable to validate instruction count. Previously the count was consistently 58 for a printf statement.
   // If we add abstractions / further calls, perhaps it's useful to first measure the required cycles for doing nothing

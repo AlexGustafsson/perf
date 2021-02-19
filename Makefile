@@ -8,11 +8,13 @@ headers := $(shell find * -type f -name "*.h" -not -path "build/*")
 
 .PHONY: build library format clean
 
-build: build/main
+build: library examples
 
 library: build/lib/perf/libperf.a lib/perf.h lib/utilities.h
 	mkdir -p build/include/perf/
 	cp lib/perf.h lib/utilities.h build/include/perf
+
+examples: build/examples/full build/examples/minimal
 
 build/lib/perf/libperf.a: build/perf.o build/utilities.o
 	mkdir -p $(dir $@)
@@ -26,9 +28,13 @@ build/utilities.o: lib/utilities.c lib/utilities.h
 	mkdir -p $(dir $@)
 	$(CC) $(CCFLAGS) -c -o $@ $<
 
-build/main: library src/main.c
+build/examples/full: library examples/full/main.c
 	mkdir -p $(dir $@)
-	$(CC) $(CCFLAGS) -o $@ src/main.c -I build/include -L build/lib/perf -lperf -lcap
+	$(CC) $(CCFLAGS) -o $@ examples/full/main.c -I build/include -L build/lib/perf -lperf -lcap
+
+build/examples/minimal: library examples/minimal/main.c
+	mkdir -p $(dir $@)
+	$(CC) $(CCFLAGS) -o $@ examples/minimal/main.c -I build/include -L build/lib/perf -lperf -lcap
 
 # Create the compilation database for llvm tools
 compile_commands.json: Makefile
