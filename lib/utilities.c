@@ -41,7 +41,7 @@ void perf_print_error(int error) {
 }
 
 int perf_is_supported() {
-  return access("/proc/sys/kernel/perf_event_paranoid", F_OK) == 0 ? 0 : 1;
+  return access("/proc/sys/kernel/perf_event_paranoid", F_OK) == 0 ? 1 : 0;
 }
 
 int perf_get_event_paranoia() {

@@ -1,7 +1,7 @@
 # Disable echoing of commands
 MAKEFLAGS += --silent
 
-export CCFLAGS := $(CCFLAGS) -O3 -Wall -Wextra -pedantic -Wno-unused-parameter -fno-omit-frame-pointer -g
+export CCFLAGS := $(CCFLAGS) -Wall -Wextra -pedantic -Wno-unused-parameter -fno-omit-frame-pointer -g
 
 source := $(shell find * -type f -name "*.c" -not -path "build/*")
 headers := $(shell find * -type f -name "*.h" -not -path "build/*")
@@ -28,9 +28,9 @@ build/utilities.o: lib/utilities.c lib/utilities.h
 	mkdir -p $(dir $@)
 	$(CC) $(CCFLAGS) -c -o $@ $<
 
-build/examples/full: library examples/full/main.c
+build/examples/full: library examples/full/main.c examples/full/harness.c examples/full/harness.h
 	mkdir -p $(dir $@)
-	$(CC) $(CCFLAGS) -o $@ examples/full/main.c -I build/include -L build/lib/perf -lperf -lcap
+	$(CC) $(CCFLAGS) -o $@ examples/full/main.c examples/full/harness.c -I build/include -L build/lib/perf -lperf -lcap
 
 build/examples/minimal: library examples/minimal/main.c
 	mkdir -p $(dir $@)
