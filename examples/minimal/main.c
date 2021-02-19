@@ -15,7 +15,8 @@ int main(int argc, char **argv) {
 
   // Ensure that the caller has sufficient privilege for performing the measurement
   int has_sufficient_privilege = perf_has_sufficient_privilege(measure_instruction_count);
-  if (!has_sufficient_privilege) return EXIT_FAILURE;
+  if (!has_sufficient_privilege)
+    return EXIT_FAILURE;
 
   // Open the measurement (register the measurement, but don't start measuring)
   perf_open_measurement(measure_instruction_count, -1, 0);
@@ -37,7 +38,7 @@ int main(int argc, char **argv) {
   printf("%lu\n", instruction_count);
 
   // Always free any allocated measurement
-  free((void*)measure_instruction_count);
+  free((void *)measure_instruction_count);
 
   return EXIT_SUCCESS;
 }

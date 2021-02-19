@@ -18,31 +18,30 @@
 #define false 0
 
 void perf_print_error(int error) {
-  switch(error) {
-    case PERF_ERROR_IO:
-      perror("io error");
-      break;
-    case PERF_ERROR_LIBRARY_FAILURE:
-      perror("library failure");
-      break;
-    case PERF_ERROR_CAPABILITY_NOT_SUPPORTED:
-      fprintf(stderr, "unsupported capability\n");
-      break;
-    case PERF_ERROR_EVENT_OPEN:
-      perror("perf_event_open failed");
-      break;
-    case PERF_ERROR_BAD_PARAMETERS:
-      fprintf(stderr, "bad parameters\n");
-      break;
-    default:
-      fprintf(stderr, "unknown error\n");
-      break;
+  switch (error) {
+  case PERF_ERROR_IO:
+    perror("io error");
+    break;
+  case PERF_ERROR_LIBRARY_FAILURE:
+    perror("library failure");
+    break;
+  case PERF_ERROR_CAPABILITY_NOT_SUPPORTED:
+    fprintf(stderr, "unsupported capability\n");
+    break;
+  case PERF_ERROR_EVENT_OPEN:
+    perror("perf_event_open failed");
+    break;
+  case PERF_ERROR_BAD_PARAMETERS:
+    fprintf(stderr, "bad parameters\n");
+    break;
+  default:
+    fprintf(stderr, "unknown error\n");
+    break;
   }
 }
 
 int perf_is_supported() {
-  return access("/proc/sys/kernel/perf_event_paranoid", F_OK) == 0 ? 0 :
-      1;
+  return access("/proc/sys/kernel/perf_event_paranoid", F_OK) == 0 ? 0 : 1;
 }
 
 int perf_get_event_paranoia() {
@@ -129,7 +128,7 @@ int perf_has_capability(int capability) {
 }
 
 perf_measurement_t *perf_create_measurement(int type, int config, pid_t pid, int cpu) {
-  perf_measurement_t *measurement = (perf_measurement_t*)malloc(sizeof(perf_measurement_t));
+  perf_measurement_t *measurement = (perf_measurement_t *)malloc(sizeof(perf_measurement_t));
   if (measurement == NULL)
     return NULL;
 
@@ -173,9 +172,12 @@ int perf_get_kernel_version(int *major, int *minor, int *patch) {
   if (sscanf(name.release, "%d.%d.%d", &parsed_major, &parsed_minor, &parsed_patch) < 3)
     return PERF_ERROR_IO;
 
-  if (major != NULL) *major = parsed_major;
-  if (minor != NULL) *minor = parsed_minor;
-  if (patch != NULL) *patch = parsed_patch;
+  if (major != NULL)
+    *major = parsed_major;
+  if (minor != NULL)
+    *minor = parsed_minor;
+  if (patch != NULL)
+    *patch = parsed_patch;
 
   return 0;
 }
