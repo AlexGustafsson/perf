@@ -7,15 +7,15 @@
 #include "perf.h"
 
 // An IO error occured. Use errno to gather more information
-#define PERF_ERROR_IO 1
+#define PERF_ERROR_IO -1
 // A call to a library method failed. Use errno to gather more information
-#define PERF_ERROR_LIBRARY_FAILURE 2
+#define PERF_ERROR_LIBRARY_FAILURE -2
 // A capability is not supported.
-#define PERF_ERROR_CAPABILITY_NOT_SUPPORTED 3
+#define PERF_ERROR_CAPABILITY_NOT_SUPPORTED -3
 // A call to perf_event_open failed
-#define PERF_ERROR_EVENT_OPEN 4
+#define PERF_ERROR_EVENT_OPEN -4
 // Bad parameters received
-#define PERF_ERROR_BAD_PARAMETERS 5
+#define PERF_ERROR_BAD_PARAMETERS -5
 
 typedef struct {
   // The attribute for the measurement
@@ -41,6 +41,9 @@ int perf_is_supported();
 #define PERF_EVENT_PARANOIA_DISALLOW_CPU (1 << 2)
 // >=2 : Disallow kernel profiling by users without CAP_SYS_ADMIN.
 #define PERF_EVENT_PARANOIA_DISALLOW_KERNEL (1 << 3)
+
+// Prints an error.
+void perf_print_error(int error);
 
 // Reads the currently configured event paranoia.
 // Returns <0 if an error occured, a PERF_EVENT_PARANOIA_ value otherwise.

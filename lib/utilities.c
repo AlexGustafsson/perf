@@ -17,8 +17,32 @@
 #define true 1
 #define false 0
 
+void perf_print_error(int error) {
+  switch(error) {
+    case PERF_ERROR_IO:
+      perror("io error");
+      break;
+    case PERF_ERROR_LIBRARY_FAILURE:
+      perror("library failure");
+      break;
+    case PERF_ERROR_CAPABILITY_NOT_SUPPORTED:
+      fprintf(stderr, "unsupported capability\n");
+      break;
+    case PERF_ERROR_EVENT_OPEN:
+      perror("perf_event_open failed");
+      break;
+    case PERF_ERROR_BAD_PARAMETERS:
+      fprintf(stderr, "bad parameters\n");
+      break;
+    default:
+      fprintf(stderr, "unknown error\n");
+      break;
+  }
+}
+
 int perf_is_supported() {
-  return access("/proc/sys/kernel/perf_event_paranoid", F_OK) == 0 ? 0 : 1;
+  return access("/proc/sys/kernel/perf_event_paranoid", F_OK) == 0 ? 0 :
+      1;
 }
 
 int perf_get_event_paranoia() {
