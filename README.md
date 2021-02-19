@@ -69,7 +69,7 @@ To be continued as the API stabilizes.
 
 Any contribution is welcome. If you're not able to code it yourself, perhaps someone else is - so post an issue if there's anything on your mind.
 
-#### Development
+## Development
 
 Make sure you meet the following prerequisites:
 * `$CC` refers to `gcc` 8 or newer
@@ -90,3 +90,9 @@ make library
 # Build examples
 make examples
 ```
+
+### Roadmap
+
+* [ ] Add support for `mmap`ed events
+* [ ] Add support for monitoring groups
+* [ ] Add further, real world examples
