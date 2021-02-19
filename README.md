@@ -47,6 +47,7 @@ Examples are available in the `examples` directory, output to the `build/example
 * Tested on x86 Ubuntu LTS 20.04 (Linux 5.7 and 5.8)
 * Tested on s390x RHEL 8.3 (Linux 4.18)
 * Supports Linux 2.6.32 and newer
+* Supports graceful handling of insufficient capabilities per monitored event (and `CAP_PERFMON` added in 5.9)
 
 <a id="documentation"></a>
 ## Documentation
