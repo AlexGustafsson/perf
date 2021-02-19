@@ -38,7 +38,7 @@ build/examples/minimal: library examples/minimal/main.c
 
 # Create the compilation database for llvm tools
 compile_commands.json: Makefile
-	# compiledb is instqalled using: pip install compiledb
+	# compiledb is installed using: pip install compiledb
 	compiledb -n make
 
 # Format code according to .clang-format
