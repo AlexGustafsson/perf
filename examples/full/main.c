@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
     perf_start_measurement(measure_instruction_count);
     result = perform_computation();
     perf_stop_measurement(measure_instruction_count);
-    perf_read_measurement(measure_instruction_count, instruction_counts + i * sizeof(uint64_t));
+    perf_read_measurement(measure_instruction_count, instruction_counts + i);
   }
 
   int sum = 0;
