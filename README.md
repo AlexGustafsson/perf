@@ -46,6 +46,7 @@ Examples are available in the `examples` directory, output to the `build/example
 * Zero-overhead measurements
 * Tested on x86 Ubuntu LTS 20.04 (Linux 5.7 and 5.8)
 * Tested on s390x RHEL 8.3 (Linux 4.18)
+* Supports Linux 2.6.32 and newer
 
 <a id="documentation"></a>
 ## Documentation
