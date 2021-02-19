@@ -52,6 +52,7 @@ void prepare() {
   assert_support();
 
   measure_instruction_count = perf_create_measurement(PERF_TYPE_HARDWARE, PERF_COUNT_HW_INSTRUCTIONS, 0, -1);
+  measure_instruction_count->attribute.exclude_kernel = 1;
 
   prepare_measurement(measure_instruction_count);
 }
