@@ -1,21 +1,30 @@
 #include <linux/perf_event.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/ioctl.h>
+#include <sys/utsname.h>
 #include <unistd.h>
-#include <stdint.h>
 
 #include <perf/utilities.h>
 
 int main(int argc, char **argv) {
+  int major, minor, patch;
+  if (perf_get_kernel_version(&major, &minor, &patch) < 0) {
+    printf("error: unable to get kernel version\n");
+    exit(EXIT_FAILURE);
+  }
+
+  printf("Kernel version: %d.%d.%d\n", major, minor, patch);
+
   if (perf_is_supported() != 0) {
     printf("Perf API not supported\n");
     exit(EXIT_FAILURE);
   }
 
   int event_paranoia = perf_get_event_paranoia();
-  if (event_paranoia == -1) {
+  if (event_paranoia < 0) {
     printf("error: unable to get event paranoia\n");
     exit(EXIT_FAILURE);
   }
@@ -28,8 +37,17 @@ int main(int argc, char **argv) {
   if (event_paranoia & PERF_EVENT_PARANOIA_DISALLOW_KERNEL)
     printf("Event paranoia: Disallow kernel\n");
 
-  int has_sufficient_privilege = perf_has_sufficient_privilege(event_paranoia);
-  if (has_sufficient_privilege == -1) {
+  perf_measurement_t *measure_instruction_count = perf_create_measurement(PERF_TYPE_HARDWARE, PERF_COUNT_HW_INSTRUCTIONS, 0, -1);
+  if (measure_instruction_count == NULL) {
+    printf("Failed to create measurement\n");
+    exit(EXIT_FAILURE);
+  }
+
+  measure_instruction_count->attribute.exclude_hv = 1;
+  measure_instruction_count->attribute.exclude_kernel = 1;
+
+  int has_sufficient_privilege = perf_has_sufficient_privilege(measure_instruction_count);
+  if (has_sufficient_privilege < 0) {
     printf("error: unable to check for sufficient privilege\n");
     exit(EXIT_FAILURE);
   }
@@ -39,16 +57,7 @@ int main(int argc, char **argv) {
     return EXIT_FAILURE;
   }
 
-  perf_measurement_t *measure_instruction_count = perf_create_measurement(PERF_TYPE_HARDWARE, PERF_COUNT_HW_INSTRUCTIONS);
-  if (measure_instruction_count == NULL) {
-    printf("Failed to create measurement\n");
-    exit(EXIT_FAILURE);
-  }
-
-  measure_instruction_count->attribute.exclude_hv = 1;
-  measure_instruction_count->attribute.exclude_kernel = 1;
-
-  if (perf_open_measurement(measure_instruction_count, getpid(), -1, -1, 0) == -1) {
+  if (perf_open_measurement(measure_instruction_count, -1, 0) < 0) {
     printf("Failed to open measurement\n");
     free((void*)measure_instruction_count);
     exit(EXIT_FAILURE);
@@ -61,7 +70,7 @@ int main(int argc, char **argv) {
   perf_stop_measurement(measure_instruction_count);
 
   uint64_t instruction_count = 0;
-  if (perf_read_measurement(measure_instruction_count, &instruction_count) == -1) {
+  if (perf_read_measurement(measure_instruction_count, &instruction_count) < 0) {
     printf("Failed to read measurement\n");
     free((void*)measure_instruction_count);
     exit(EXIT_FAILURE);

@@ -6,15 +6,29 @@
 
 #include "perf.h"
 
+// An IO error occured. Use errno to gather more information
+#define PERF_ERROR_IO 1
+// A call to a library method failed. Use errno to gather more information
+#define PERF_ERROR_LIBRARY_FAILURE 2
+// A capability is not supported.
+#define PERF_ERROR_CAPABILITY_NOT_SUPPORTED 3
+// A call to perf_event_open failed
+#define PERF_ERROR_EVENT_OPEN 4
+// Bad parameters received
+#define PERF_ERROR_BAD_PARAMETERS 5
+
 typedef struct {
   // The attribute for the measurement
   perf_event_attr_t attribute;
   // The file descriptor of the measurement
   int file_descriptor;
+  // The PID to measure. 0 for the current process
+  pid_t pid;
+  // The CPU to measure. -1 for all CPUs
+  int cpu;
 } perf_measurement_t;
 
-// Checks whether or not the perf API is supported.
-// Returns 1 if there is support and 0 otherwise.
+// Returns whether or not the perf API is supported.
 int perf_is_supported();
 
 // -1 : Allow use of (almost) all events by all users. Ignore mlock limit after
@@ -29,23 +43,45 @@ int perf_is_supported();
 #define PERF_EVENT_PARANOIA_DISALLOW_KERNEL (1 << 3)
 
 // Reads the currently configured event paranoia.
-// Returns -1 if an error occured, a PERF_EVENT_PARANOIA_ value otherwise.
+// Returns <0 if an error occured, a PERF_EVENT_PARANOIA_ value otherwise.
 // Note: does not return the actually configured paranoia value.
 int perf_get_event_paranoia();
-// Checks whether the current user has sufficient privilege for using the
-// perf API. Returns 1 if there user has sufficient privileges, 0 if not and
-// -1 if there was an error.
-int perf_has_sufficient_privilege(int event_paranoia);
+
+// Returns whether or not the current user has sufficient privilege for using the
+// perf API.
+// Returns <0 if an error occured.
+int perf_has_sufficient_privilege(perf_measurement_t *measurement);
+
+// Returns whether or not the calling user has a specific capability.
+// Returns <0 if an error occured.
+int perf_has_capability(int capability);
 
 // Create a measurement. Should be freed.
-perf_measurement_t *perf_create_measurement(int type, int config);
-// Open a measurement to prepare it for usage. Returns 0 for success, -1 otherwise.
-int perf_open_measurement(perf_measurement_t *measurement, pid_t pid, int cpu, int group, int flags);
+// pid == 0 and cpu == -1 This measures the calling process / thread on any CPU.
+// pid == 0 and cpu >= 0 This measures the calling process / thread only when running on the specified CPU.
+// pid > 0 and cpu == -1 This measures the specified process / thread on any CPU.
+// pid > 0 and cpu >= 0 This measures the specified process / thread only when running on the specified CPU.
+// pid == -1 and cpu >= 0 This measures all processes / threads on the specified CPU.This requires CAP_PERFMON(since Linux 5.8) or CAP_SYS_ADMIN capability or a event paranoia value of less than 1.
+// pid  == -1 and cpu == -1 This setting is invalid and will return an error.
+// Returns NULL if an error occured.
+perf_measurement_t *perf_create_measurement(int type, int config, pid_t pid, int cpu);
+
+// Open a measurement to prepare it for usage.
+// Returns <0 if an error occured.
+int perf_open_measurement(perf_measurement_t *measurement, int group, int flags);
+
 // Start a measurement. Resets the counter and starts it.
 #define perf_start_measurement(measurement) do { ioctl(measurement->file_descriptor, PERF_EVENT_IOC_RESET, 0); ioctl(measurement->file_descriptor, PERF_EVENT_IOC_ENABLE, 0); } while(0)
+
 // Stop a measurement.
 #define perf_stop_measurement(measurement) ioctl(measurement->file_descriptor, PERF_EVENT_IOC_DISABLE, 0)
+
 // Read a measured value.
+// Return the number read, -1 for errors or 0 for EOF.
 int perf_read_measurement(perf_measurement_t *measurement, uint64_t *value);
+
+// Get the kernel. Use NULL to ignore a value.
+// Returns <0 if an error occured.
+int perf_get_kernel_version(int *major, int *minor, int *patch);
 
 #endif
