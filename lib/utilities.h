@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <unistd.h>
+#include <sys/ioctl.h>
 
 #include "perf.h"
 
@@ -26,6 +27,10 @@ typedef struct {
   pid_t pid;
   // The CPU to measure. -1 for all CPUs
   int cpu;
+  // The group the measurement is part of. -1 if parent of a group
+  int group;
+  // The ID of the measurement
+  uint64_t id;
 } perf_measurement_t;
 
 // Returns whether or not the perf API is supported.
@@ -74,18 +79,18 @@ perf_measurement_t *perf_create_measurement(int type, int config, pid_t pid, int
 int perf_open_measurement(perf_measurement_t *measurement, int group, int flags);
 
 // Start a measurement. Resets the counter and starts it.
-#define perf_start_measurement(measurement)                        \
-  do {                                                             \
-    ioctl(measurement->file_descriptor, PERF_EVENT_IOC_RESET, 0);  \
-    ioctl(measurement->file_descriptor, PERF_EVENT_IOC_ENABLE, 0); \
+#define perf_start_measurement(measurement)                                          \
+  do {                                                                               \
+    ioctl(measurement->file_descriptor, PERF_EVENT_IOC_RESET, PERF_IOC_FLAG_GROUP);  \
+    ioctl(measurement->file_descriptor, PERF_EVENT_IOC_ENABLE, PERF_IOC_FLAG_GROUP); \
   } while (0)
 
 // Stop a measurement.
-#define perf_stop_measurement(measurement) ioctl(measurement->file_descriptor, PERF_EVENT_IOC_DISABLE, 0)
+#define perf_stop_measurement(measurement) ioctl(measurement->file_descriptor, PERF_EVENT_IOC_DISABLE, PERF_IOC_FLAG_GROUP)
 
 // Read a measured value.
 // Return the number read, -1 for errors or 0 for EOF.
-int perf_read_measurement(perf_measurement_t *measurement, uint64_t *value);
+int perf_read_measurement(perf_measurement_t *measurement, void *target, size_t bytes);
 
 // Get the kernel. Use NULL to ignore a value.
 // Returns <0 if an error occured.

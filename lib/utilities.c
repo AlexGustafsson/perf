@@ -1,3 +1,4 @@
+#include <linux/perf_event.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -140,6 +141,7 @@ perf_measurement_t *perf_create_measurement(int type, int config, pid_t pid, int
   measurement->attribute.type = type;
   measurement->attribute.config = config;
   measurement->attribute.disabled = 1;
+  measurement->attribute.read_format = PERF_FORMAT_GROUP | PERF_FORMAT_ID;
 
   return measurement;
 }
@@ -149,17 +151,22 @@ int perf_open_measurement(perf_measurement_t *measurement, int group, int flags)
   if (measurement->pid == -1 && measurement->cpu == -1)
     return PERF_ERROR_BAD_PARAMETERS;
 
-  // TODO: Validate privilege
   int file_descriptor = perf_event_open(&measurement->attribute, measurement->pid, measurement->cpu, group, flags);
   if (file_descriptor < 0)
     return PERF_ERROR_EVENT_OPEN;
 
   measurement->file_descriptor = file_descriptor;
+  measurement->group = group;
+
+  // Get the ID of the measurement
+  if (ioctl(measurement->file_descriptor, PERF_EVENT_IOC_ID, &measurement->id) < 0)
+    return PERF_ERROR_LIBRARY_FAILURE;
+
   return 0;
 }
 
-int perf_read_measurement(perf_measurement_t *measurement, uint64_t *value) {
-  return read(measurement->file_descriptor, value, sizeof(uint64_t));
+int perf_read_measurement(perf_measurement_t *measurement, void *target, size_t bytes) {
+  return read(measurement->file_descriptor, target, bytes);
 }
 
 int perf_get_kernel_version(int *major, int *minor, int *patch) {

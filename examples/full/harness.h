@@ -5,10 +5,15 @@
 
 #define TEST_ITERATIONS 100
 
-uint64_t instruction_counts[TEST_ITERATIONS];
-uint64_t cycle_counts[TEST_ITERATIONS];
-uint64_t context_switches[TEST_ITERATIONS];
-uint64_t cpu_clocks[TEST_ITERATIONS];
+typedef struct {
+  uint64_t nr;
+  struct {
+    uint64_t value;
+    uint64_t id;
+  } values[4];
+} measurement_t;
+
+measurement_t measurements[TEST_ITERATIONS];
 
 // Retired instructions. Be careful, these can be affected by various issues, most notably hardware interrupt counts.
 perf_measurement_t *measure_instruction_count;

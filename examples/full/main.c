@@ -21,10 +21,10 @@ int perform_computation() {
 int main(int argc, char **argv) {
   int result = 0;
   for (int i = 0; i < TEST_ITERATIONS; i++) {
-    perf_start_measurement(measure_cpu_clock);
+    perf_start_measurement(measure_instruction_count);
     result = perform_computation();
-    perf_stop_measurement(measure_cpu_clock);
-    perf_read_measurement(measure_cpu_clock, cpu_clocks + i);
+    perf_stop_measurement(measure_instruction_count);
+    perf_read_measurement(measure_instruction_count, measurements + i, sizeof(measurement_t));
   }
 
   printf("Result: %d\n", result);

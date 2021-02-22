@@ -9,6 +9,14 @@
 
 #include <perf/utilities.h>
 
+typedef struct {
+  uint64_t nr;
+  struct {
+    uint64_t value;
+    uint64_t id;
+  } values[1];
+} measurement_t;
+
 int main(int argc, char **argv) {
   // Create a measurement using hardware (CPU) registers. Measure the number of instructions amassed.
   perf_measurement_t *measure_instruction_count = perf_create_measurement(PERF_TYPE_HARDWARE, PERF_COUNT_HW_INSTRUCTIONS, 0, -1);
@@ -31,11 +39,13 @@ int main(int argc, char **argv) {
   perf_stop_measurement(measure_instruction_count);
 
   // Read the number of instructions from the counter
-  uint64_t instruction_count = 0;
-  perf_read_measurement(measure_instruction_count, &instruction_count);
+  measurement_t measurement;
+  perf_read_measurement(measure_instruction_count, &measurement, sizeof(measurement_t));
 
   // Print the instruction count
-  printf("%lu\n", instruction_count);
+  printf("%lu\n", measurement.nr);
+  printf("%lu\n", measurement.values[0].id);
+  printf("%lu\n", measurement.values[0].value);
 
   // Always free any allocated measurement
   free((void *)measure_instruction_count);

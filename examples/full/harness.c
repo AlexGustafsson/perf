@@ -32,7 +32,7 @@ void assert_support() {
   }
 }
 
-void prepare_measurement(perf_measurement_t *measurement) {
+void prepare_measurement(perf_measurement_t *measurement, perf_measurement_t *parent_measurement) {
   int status = perf_has_sufficient_privilege(measurement);
   if (status < 0) {
     perf_print_error(status);
@@ -42,7 +42,9 @@ void prepare_measurement(perf_measurement_t *measurement) {
     exit(EXIT_FAILURE);
   }
 
-  status = perf_open_measurement(measurement, -1, 0);
+  int group = parent_measurement == NULL ? -1 : parent_measurement->file_descriptor;
+
+  status = perf_open_measurement(measurement, group, 0);
   if (status < 0) {
     perf_print_error(status);
     exit(EXIT_FAILURE);
@@ -56,34 +58,38 @@ void prepare() {
 
   measure_instruction_count = perf_create_measurement(PERF_TYPE_HARDWARE, PERF_COUNT_HW_INSTRUCTIONS, 0, -1);
   measure_instruction_count->attribute.exclude_kernel = 1;
-  prepare_measurement(measure_instruction_count);
+  prepare_measurement(measure_instruction_count, NULL);
 
   measure_cycle_count = perf_create_measurement(PERF_TYPE_HARDWARE, PERF_COUNT_HW_REF_CPU_CYCLES, 0, -1);
   measure_cycle_count->attribute.exclude_kernel = 1;
-  prepare_measurement(measure_cycle_count);
+  prepare_measurement(measure_cycle_count, measure_instruction_count);
 
   measure_context_switches = perf_create_measurement(PERF_TYPE_SOFTWARE, PERF_COUNT_SW_CONTEXT_SWITCHES, 0, -1);
-  prepare_measurement(measure_context_switches);
+  prepare_measurement(measure_context_switches, measure_instruction_count);
 
   measure_cpu_clock = perf_create_measurement(PERF_TYPE_SOFTWARE, PERF_COUNT_SW_TASK_CLOCK, 0, -1);
+  prepare_measurement(measure_cpu_clock, measure_instruction_count);
 
   prepared_successfully = 1;
 }
 
 void print_results() {
-  int sum = 0;
-  for (int i = 0; i < TEST_ITERATIONS; i++)
-    sum += context_switches[i];
-
-  printf("Measurements:\n");
+  printf("    instructions           cycles  context switches           clock\n");
   for (int i = 0; i < TEST_ITERATIONS; i++) {
-    printf("%lu,\t", context_switches[i]);
+    uint64_t values[4] = {0};
+    perf_measurement_t *taken_measurements[] = {measure_instruction_count, measure_cycle_count, measure_context_switches, measure_cpu_clock};
 
-    if (i > 0 && i % 10 == 0)
-      printf("\n");
+    for (uint64_t j = 0; j < measurements[i].nr; j++) {
+      for (int k = 0; k < 4; k++) {
+        if (measurements[i].values[j].id == taken_measurements[k]->id) {
+          values[k] = measurements[i].values[j].value;
+          break;
+        }
+      }
+    }
+
+    printf("%16lu %16lu %16lu %16lu\n", values[0], values[1], values[2], values[3]);
   }
-  printf("\n");
-  printf("Got an average of %u context switches\n", sum / TEST_ITERATIONS);
 }
 
 void cleanup() {
@@ -94,4 +100,5 @@ void cleanup() {
   if (measure_instruction_count != NULL) free((void*)measure_instruction_count);
   if (measure_cycle_count != NULL) free((void*)measure_cycle_count);
   if (measure_context_switches != NULL) free((void*)measure_context_switches);
+  if (measure_cpu_clock != NULL) free((void*)measure_cpu_clock);
 }
