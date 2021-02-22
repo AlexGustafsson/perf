@@ -94,5 +94,5 @@ make examples
 ### Roadmap
 
 * [ ] Add support for `mmap`ed events
-* [ ] Add support for monitoring groups
+* [x] Add support for monitoring groups
 * [ ] Add further, real world examples
