@@ -21,24 +21,11 @@ int perform_computation() {
 int main(int argc, char **argv) {
   int result = 0;
   for (int i = 0; i < TEST_ITERATIONS; i++) {
-    perf_start_measurement(measure_instruction_count);
+    perf_start_measurement(measure_cpu_clock);
     result = perform_computation();
-    perf_stop_measurement(measure_instruction_count);
-    perf_read_measurement(measure_instruction_count, instruction_counts + i);
+    perf_stop_measurement(measure_cpu_clock);
+    perf_read_measurement(measure_cpu_clock, cpu_clocks + i);
   }
-
-  int sum = 0;
-  for (int i = 0; i < TEST_ITERATIONS; i++)
-    sum += instruction_counts[i];
 
   printf("Result: %d\n", result);
-  printf("Measurements:\n");
-  for (int i = 0; i < TEST_ITERATIONS; i++) {
-    printf("%lu,\t", instruction_counts[i]);
-
-    if (i > 0 && i % 10 == 0)
-      printf("\n");
-  }
-  printf("\n");
-  printf("Got an average of %u instructions\n", sum / TEST_ITERATIONS);
 }
