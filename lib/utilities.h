@@ -2,8 +2,8 @@
 #define PERF_UTILITIES_H
 
 #include <stdint.h>
-#include <unistd.h>
 #include <sys/ioctl.h>
+#include <unistd.h>
 
 #include "perf.h"
 
