@@ -1,3 +1,4 @@
+#include <inttypes.h>
 #include <linux/perf_event.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -43,9 +44,9 @@ int main(int argc, char **argv) {
   perf_read_measurement(measure_instruction_count, &measurement, sizeof(measurement_t));
 
   // Print the instruction count
-  printf("%lu\n", measurement.nr);
-  printf("%lu\n", measurement.values[0].id);
-  printf("%lu\n", measurement.values[0].value);
+  printf("%" PRIu64 "\n", measurement.nr);
+  printf("%" PRIu64 "\n", measurement.values[0].id);
+  printf("%" PRIu64 "\n", measurement.values[0].value);
 
   // Always free any allocated measurement
   free((void *)measure_instruction_count);

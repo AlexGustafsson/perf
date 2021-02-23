@@ -3,7 +3,7 @@
 
 #include "harness.h"
 
-struct timespec hundred_milliseconds = {0, 100 * 1000000};
+struct timespec ten_milliseconds = {0, 10 * 1000000};
 
 int perform_computation() {
   int result = 0;
@@ -13,7 +13,7 @@ int perform_computation() {
     result = i + i * 2;
 
   // A bit of IO
-  nanosleep(&hundred_milliseconds, NULL);
+  nanosleep(&ten_milliseconds, NULL);
 
   return result;
 }

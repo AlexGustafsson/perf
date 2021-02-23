@@ -1,5 +1,7 @@
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/mman.h>
 
 #include "harness.h"
 #include "perf/utilities.h"
@@ -100,7 +102,7 @@ void print_results() {
     }
 
     // Ignore the results from the dummy counter
-    printf("%16lu %16lu %16lu %16lu\n", values[1], values[2], values[3], values[4]);
+    printf("%16" PRIu64 "%16" PRIu64 "%16" PRIu64 "%16" PRIu64 "\n", values[1], values[2], values[3], values[4]);
   }
 }
 
