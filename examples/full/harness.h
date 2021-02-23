@@ -5,8 +5,11 @@
 
 #define TEST_ITERATIONS 100
 
+// This structure is returned each time the main measurement is read.
+// It contains the result of all the measurements, taken simultaneously.
+// The order of the measurements is unknown - used the ID.
 typedef struct {
-  uint64_t nr;
+  uint64_t recorded_values;
   struct {
     uint64_t value;
     uint64_t id;
