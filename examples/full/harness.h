@@ -10,11 +10,13 @@ typedef struct {
   struct {
     uint64_t value;
     uint64_t id;
-  } values[4];
+  } values[5];
 } measurement_t;
 
 measurement_t measurements[TEST_ITERATIONS];
 
+// The main measuring group.
+perf_measurement_t *all_measurements;
 // Retired instructions. Be careful, these can be affected by various issues, most notably hardware interrupt counts.
 perf_measurement_t *measure_instruction_count;
 // Total cycles; not affected by CPU frequency scaling.
