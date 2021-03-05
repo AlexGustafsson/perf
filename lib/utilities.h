@@ -17,6 +17,8 @@
 #define PERF_ERROR_EVENT_OPEN -4
 // Bad parameters received
 #define PERF_ERROR_BAD_PARAMETERS -5
+// The event is not supported, or invalid
+#define PERF_ERROR_NOT_SUPPORTED -6
 
 typedef struct {
   // The attribute for the measurement
@@ -58,7 +60,7 @@ int perf_get_event_paranoia();
 // Returns whether or not the current user has sufficient privilege for using the
 // perf API.
 // Returns <0 if an error occured.
-int perf_has_sufficient_privilege(perf_measurement_t *measurement);
+int perf_has_sufficient_privilege(const perf_measurement_t *measurement);
 
 // Returns whether or not the calling user has a specific capability.
 // Returns <0 if an error occured.
@@ -90,10 +92,14 @@ int perf_open_measurement(perf_measurement_t *measurement, int group, int flags)
 
 // Read a measured value.
 // Return the number read, -1 for errors or 0 for EOF.
-int perf_read_measurement(perf_measurement_t *measurement, void *target, size_t bytes);
+int perf_read_measurement(const perf_measurement_t *measurement, void *target, size_t bytes);
 
 // Get the kernel. Use NULL to ignore a value.
 // Returns <0 if an error occured.
 int perf_get_kernel_version(int *major, int *minor, int *patch);
+
+// Whether or not an event is supported. Creates an event and then closes it immediately.
+// Returns <0 if an error occured.
+int perf_event_is_supported(const perf_measurement_t *measurement);
 
 #endif

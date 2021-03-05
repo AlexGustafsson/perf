@@ -24,7 +24,12 @@ int main(int argc, char **argv) {
 
   // Ensure that the caller has sufficient privilege for performing the measurement
   int has_sufficient_privilege = perf_has_sufficient_privilege(measure_instruction_count);
-  if (!has_sufficient_privilege)
+  if (has_sufficient_privilege != 1)
+    return EXIT_FAILURE;
+
+  // Ensure that the event is supported
+  int is_supported = perf_event_is_supported(measure_instruction_count);
+  if (is_supported != 1)
     return EXIT_FAILURE;
 
   // Open the measurement (register the measurement, but don't start measuring)

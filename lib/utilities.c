@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <linux/perf_event.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,6 +33,9 @@ void perf_print_error(int error) {
   case PERF_ERROR_EVENT_OPEN:
     perror("perf_event_open failed");
     break;
+  case PERF_ERROR_NOT_SUPPORTED:
+    perror("not supported");
+    break;
   case PERF_ERROR_BAD_PARAMETERS:
     fprintf(stderr, "bad parameters\n");
     break;
@@ -64,7 +68,7 @@ int perf_get_event_paranoia() {
   return PERF_EVENT_PARANOIA_ALLOW_ALL;
 }
 
-int perf_has_sufficient_privilege(perf_measurement_t *measurement) {
+int perf_has_sufficient_privilege(const perf_measurement_t *measurement) {
   // Immediately return if the user is an admin
   int has_cap_sys_admin = perf_has_capability(CAP_SYS_ADMIN);
   if (has_cap_sys_admin == 1)
@@ -152,8 +156,15 @@ int perf_open_measurement(perf_measurement_t *measurement, int group, int flags)
     return PERF_ERROR_BAD_PARAMETERS;
 
   int file_descriptor = perf_event_open(&measurement->attribute, measurement->pid, measurement->cpu, group, flags);
-  if (file_descriptor < 0)
+  if (file_descriptor < 0) {
+    if (errno == ENODEV ||
+        errno == ENOENT ||
+        errno == ENOSYS ||
+        errno == EOPNOTSUPP ||
+        errno == EPERM)
+      return PERF_ERROR_NOT_SUPPORTED;
     return PERF_ERROR_EVENT_OPEN;
+  }
 
   measurement->file_descriptor = file_descriptor;
   measurement->group = group;
@@ -165,7 +176,7 @@ int perf_open_measurement(perf_measurement_t *measurement, int group, int flags)
   return 0;
 }
 
-int perf_read_measurement(perf_measurement_t *measurement, void *target, size_t bytes) {
+int perf_read_measurement(const perf_measurement_t *measurement, void *target, size_t bytes) {
   return read(measurement->file_descriptor, target, bytes);
 }
 
@@ -187,4 +198,26 @@ int perf_get_kernel_version(int *major, int *minor, int *patch) {
     *patch = parsed_patch;
 
   return 0;
+}
+
+int perf_event_is_supported(const perf_measurement_t *measurement) {
+  // Invalid parameters. See: https://man7.org/linux/man-pages/man2/perf_event_open.2.html
+  if (measurement->pid == -1 && measurement->cpu == -1)
+    return PERF_ERROR_BAD_PARAMETERS;
+
+  int file_descriptor = perf_event_open(&measurement->attribute, measurement->pid, measurement->cpu, -1, 0);
+  if (file_descriptor < 0) {
+    if (errno == ENODEV ||
+        errno == ENOENT ||
+        errno == ENOSYS ||
+        errno == EOPNOTSUPP ||
+        errno == EPERM)
+      return 0;
+    return PERF_ERROR_EVENT_OPEN;
+  }
+
+  if (close(file_descriptor) < 0)
+    return PERF_ERROR_IO;
+
+  return 1;
 }

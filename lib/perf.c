@@ -17,7 +17,7 @@
 #endif
 #endif
 
-int perf_event_open(perf_event_attr_t *attr, pid_t pid, int cpu, int group_fd, unsigned long flags) {
+int perf_event_open(const perf_event_attr_t *attr, pid_t pid, int cpu, int group_fd, unsigned long flags) {
   // See: https://man7.org/linux/man-pages/man2/perf_event_open.2.html
   return syscall(__NR_perf_event_open, attr, pid, cpu, group_fd, flags);
 }
