@@ -18,8 +18,9 @@ The focus of this library is highly accurate results without any overhead _durin
 
 To build the project, first install `libcap`:
 
-* `sudo apt install libcap-dev`
-* `sudo yum install libcap-devel`
+* Ubuntu: `sudo apt install libcap-dev`
+* RHEL: `sudo yum install libcap-devel`
+* SUSE: `sudo zapper install libcap-devel`
 
 Then, simply build the project.
 
