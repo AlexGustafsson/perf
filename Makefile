@@ -36,6 +36,10 @@ build/examples/minimal: library examples/minimal/main.c
 	mkdir -p $(dir $@)
 	$(CC) $(CCFLAGS) -o $@ examples/minimal/main.c -I build/include -L build/lib/perf -lperf -lcap
 
+build/examples/pi: library examples/pi/main.c
+	mkdir -p $(dir $@)
+	$(CC) $(CCFLAGS) -o $@ examples/pi/main.c  examples/pi/harness.c -I build/include -L build/lib/perf -lperf -lcap -lm
+
 # Create the compilation database for llvm tools
 compile_commands.json: Makefile
 	# compiledb is installed using: pip install compiledb
