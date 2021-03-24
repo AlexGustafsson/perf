@@ -14,7 +14,7 @@ library: build/lib/perf/libperf.a lib/perf.h lib/utilities.h
 	mkdir -p build/include/perf/
 	cp lib/perf.h lib/utilities.h build/include/perf
 
-examples: build/examples/full build/examples/minimal
+examples: build/examples/full build/examples/minimal build/examples/pi
 
 build/lib/perf/libperf.a: build/perf.o build/utilities.o
 	mkdir -p $(dir $@)
