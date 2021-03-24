@@ -221,3 +221,10 @@ int perf_event_is_supported(const perf_measurement_t *measurement) {
 
   return 1;
 }
+
+int perf_close_measurement(const perf_measurement_t *measurement) {
+  if (close(measurement->file_descriptor) < 0)
+    return PERF_ERROR_IO;
+
+  return 0;
+}

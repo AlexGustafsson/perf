@@ -77,6 +77,7 @@ int perf_has_capability(int capability);
 perf_measurement_t *perf_create_measurement(int type, int config, pid_t pid, int cpu);
 
 // Open a measurement to prepare it for usage.
+// An opened measurement should be closed using perf_close_measurement.
 // Returns <0 if an error occured.
 int perf_open_measurement(perf_measurement_t *measurement, int group, int flags);
 
@@ -101,5 +102,9 @@ int perf_get_kernel_version(int *major, int *minor, int *patch);
 // Whether or not an event is supported. Creates an event and then closes it immediately.
 // Returns <0 if an error occured.
 int perf_event_is_supported(const perf_measurement_t *measurement);
+
+// Close the measurement.
+// Returns <0 if an error occured.
+int perf_close_measurement(const perf_measurement_t *measurement);
 
 #endif

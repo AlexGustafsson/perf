@@ -124,14 +124,28 @@ void cleanup() {
     print_results();
 
   fprintf(stderr, "cleaning up harness\n");
-  if (all_measurements != NULL)
+  if (all_measurements != NULL) {
+    perf_close_measurement(all_measurements);
     free((void *)all_measurements);
-  if (measure_instruction_count != NULL)
+  }
+
+  if (measure_instruction_count != NULL) {
+    perf_close_measurement(measure_instruction_count);
     free((void *)measure_instruction_count);
-  if (measure_cycle_count != NULL)
+  }
+
+  if (measure_cycle_count != NULL) {
+    perf_close_measurement(measure_cycle_count);
     free((void *)measure_cycle_count);
-  if (measure_context_switches != NULL)
+  }
+
+  if (measure_context_switches != NULL) {
+    perf_close_measurement(measure_context_switches);
     free((void *)measure_context_switches);
-  if (measure_cpu_clock != NULL)
+  }
+
+  if (measure_cpu_clock != NULL) {
+    perf_close_measurement(measure_cpu_clock);
     free((void *)measure_cpu_clock);
+  }
 }

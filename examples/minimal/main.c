@@ -24,13 +24,17 @@ int main(int argc, char **argv) {
 
   // Ensure that the caller has sufficient privilege for performing the measurement
   int has_sufficient_privilege = perf_has_sufficient_privilege(measure_instruction_count);
-  if (has_sufficient_privilege != 1)
+  if (has_sufficient_privilege != 1) {
+    fprintf(stderr, "Insufficient privilege\n");
     return EXIT_FAILURE;
+  }
 
   // Ensure that the event is supported
   int is_supported = perf_event_is_supported(measure_instruction_count);
-  if (is_supported != 1)
+  if (is_supported != 1) {
+    fprintf(stderr, "Measuring hardware instructions is not supported\n");
     return EXIT_FAILURE;
+  }
 
   // Open the measurement (register the measurement, but don't start measuring)
   perf_open_measurement(measure_instruction_count, -1, 0);
@@ -52,6 +56,9 @@ int main(int argc, char **argv) {
   printf("%" PRIu64 "\n", measurement.nr);
   printf("%" PRIu64 "\n", measurement.values[0].id);
   printf("%" PRIu64 "\n", measurement.values[0].value);
+
+  // Always close a created measurement
+  perf_close_measurement(measure_instruction_count);
 
   // Always free any allocated measurement
   free((void *)measure_instruction_count);
