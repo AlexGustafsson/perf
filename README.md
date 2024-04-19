@@ -92,6 +92,13 @@ make library
 make examples
 ```
 
+The examples can be tested using Docker.
+
+```shell
+docker build -t perf .
+docker run -it --rm --privileged perf ./pi
+```
+
 ### Roadmap
 
 * [ ] Add support for `mmap`ed events
