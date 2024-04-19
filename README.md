@@ -5,8 +5,6 @@
 # perf
 ## A library for using the perf API on Linux
 
-_Note: perf is under active development and may see breaking changes._
-
 <a id="quickstart"></a>
 ## Quick Start
 
